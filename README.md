@@ -2,16 +2,16 @@
 
 This repository contains the structure and examples for creating tasks for a templating system to handle various types of learning tasks. In this structure we differ between templates and tasks while every task belongs to exactly one template and for each template there are multiple tasks that are using it. 
 
-A template defines the overall layout and logic of a certain kind of task, e.g. what kind of input and output elements are present and how they are structured. A task itself then fills this template with specific content to create an individual exercise. 
+A **template** defines the overall layout and logic of a certain kind of task, e.g. what kind of input and output elements are present and how they are structured. A **task** itself then fills this template with specific content to create an individual exercise. 
 
 Both templates and tasks contain code blocks that create the html elements, fill it with content and handle 
-their behavior. In the examples below the scripts are written in python and are executed with pyscript. 
+their behavior. In the examples below the scripts are written in python and are executed with **pyscript**. 
 However this can just as well be implemented in plain JavaScript or other languages or libraries that can
 access DOM elements.  
 
 ## Templates
 ### Definition: 
-The template should build the overall layout of the task and defines which elements are present and how the user can interact with them. A template contains the following fields:
+The template should build the overall **layout** of the task and defines which elements are present and how the user can interact with them. A template contains the following fields:
 
 ```yaml
 description: A short description of the type of exercise and the contained elements
@@ -22,7 +22,7 @@ pyscript:
         # python code that builds the html elements that should be displayed in the task
 ```
 
-The generator function is called by the generator function from a task that uses this template. It gets a reference to the parten DOM element the task should rendered into.
+The **generator** function is called by the generator function from a task that uses this template. It gets a reference to the parten DOM element the task should rendered into.
 It creates the input and output elments and define their layout and behavior. In the end the function
 returns a reference to each element back to the task's generator function where they are filled with content.
 
@@ -52,8 +52,8 @@ pyscript:
 ## Tasks
 ### Definition
 A task is always connected to a specific template and uses its elements to display a task.
-It contains a title and description to describe what content will be visible and what is expected from the user.
-It also contains a task-related script that picks or generates the specific exercise. For example the task could be to multiply two numbers and the numbers and the according solution themself are randomly generated following certain rules and restrictions. These task details can be accessed by application that uses the task. The task also provide a script that evaluate the user input and return wheter the given answer is right or wrong. Every text that is displayed is provided in different languages and the parent application is responsible for picking the according language. 
+It contains a **title** and **description** to describe what content will be visible and what is expected from the user.
+It also contains a task-related script that picks or **generates the specific exercise**. For example the task could be to multiply two numbers and the numbers and the according solution themself are randomly generated following certain rules and restrictions. These **task details** can be accessed by application that uses the task. The task also provide a script that **evaluate** the user input and return wheter the given answer is right or wrong. Every **text** that is displayed is provided in different languages and the parent application is responsible for picking the according language. 
 
 ```yaml
 title:
@@ -156,7 +156,7 @@ The task details that are generated in the generate function are the two numbers
 
 
 ## Usage
-In order to be display and handle the tasks the following python function is used. It reads the template and task which are stored as yaml files, inject all the scripts and imports into a parent py-script tag which is injected into a container inside of the html page. Inside tha py-scirpt tag, the generate function of the task is called which will trigger the generate function of the template as well and render all html elements as well as generate the exercise. The refresh and check functions are called by two buttons that are defined inside the html page. 
+In order to be display and handle the tasks the following python function is used. It reads the template and task which are stored as yaml files, inject all the scripts and imports into a **parent py-script tag** which is injected into a container inside of the html page. Inside tha py-scirpt tag, the **generate** function of the task is called which will trigger the generate function of the template as well and render all html elements as well as generate the exercise. The **refresh** and **check** functions are called by two buttons that are defined inside the html page. 
 
 ```python
 
