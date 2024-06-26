@@ -152,4 +152,73 @@ pyscript:
       return f"The current exercise is {n1}*{n2}. Therefore the correct answer is {answer}"
 ```
 
-The task details that are generated in the generate function are the two numbers that has to be mutliplied and the according correct answer. These details are globally available to be used in the evaluator as well as in the get_details() function.  
+The task details that are generated in the generate function are the two numbers that has to be mutliplied and the according correct answer. These details are globally available to be used in the evaluator as well as in the get_details() function. 
+
+
+## Usage
+In order to be display and handle the tasks the following python function is used. It reads the template and task which are stored as yaml files, inject all the scripts and imports into a parent py-script tag which is injected into a container inside of the html page. Inside tha py-scirpt tag, the generate function of the task is called which will trigger the generate function of the template as well and render all html elements as well as generate the exercise. The refresh and check functions are called by two buttons that are defined inside the html page. 
+
+```python
+
+    # load yaml file by task name
+    task_file = os.path.join(tasks_dir, task_name)
+
+    # parse task and load according template 
+    task = open(task_file, "r").read()
+    task = yaml.safe_load(task)
+    task = fill_text(task, language=LANGUAGE)
+    template_name = task["template"]+".yaml"
+    template = open(os.path.join(template_dir, template_name), "r").read()
+    template = yaml.safe_load(template)
+
+    # read pyscript fileds from task and template
+    template_header = template["pyscript"]["imports"] 
+    tempalte_generator = template["pyscript"]["generator"]
+    task_header = task["pyscript"]["imports"] 
+    task_globals = task["pyscript"]["globals"]
+    task_checker = task["pyscript"]["checker"]
+    task_generator = task["pyscript"]["generator"]
+    task_details = task["pyscript"]["details"]
+    task_description = task["description"]
+    task_example = task["example"]
+
+    # build pyscript tag that handles the task layout and logic
+    response_html = f"""
+    <py-script>
+        import js
+        {template_header}
+        {tempalte_generator}
+        {task_header}
+        {task_globals}
+        {task_checker}
+        {task_generator}
+        {task_details}
+
+        def check(event):
+            result = check_answer(event)
+            flag = result[0]
+            if flag:
+                pydom['#result'][0].html = "Correct!" 
+                generate('task-container')
+                send_context()
+            else:
+                pydom['#result'][0].html = "Almost! Try again!"
+
+        def refresh(event):
+            generate('task-container')
+            send_context()
+            
+        def send_context():
+            details = get_details()
+            context = "The student is currently working on the following Exercise: DESCRIPTION:"+"{task_description}"+" EXAMPLE:"+"{task_example}"+" CURRENT EXERCISE:"+details
+            js.sendTaskDetails(context)
+
+        generate('task-container')
+        send_context()
+        
+    </py-script>
+    """
+    
+    return HttpResponse(response_html)
+
+```
