@@ -1,0 +1,22 @@
+description: Question on top and multiple choice container with a various number of elements. Only one elment can be seltcted at a time
+pyscript:
+  imports: |
+    from pyscript import document
+    from pyweb import pydom
+  generator: |
+      def generate_template(parent, num_choices):
+        parent = document.getElementById(parent)
+        parent.innerHTML=""
+        question_element = document.createElement("div")
+        choices_container = document.createElement("div")
+        choices_elements = []
+        for _ in range(num_choices):
+          c_element = document.createElement("div")
+          c_element.className = 'choice';
+          choices_container.append(c_element)
+          choices_elements.append(c_element)
+          
+        parent.append(question_element)
+        parent.append(choices_container)
+
+        return question_element, choices_container, choices_elements

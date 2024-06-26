@@ -1,0 +1,115 @@
+title:
+  german: Formen bestimmen
+  english: Name shapes
+description: The Student is asked to identify a certain geometrical shape. The student
+  sees a multiple choice list with 3 items where every item shows a different shape.
+  The student has to select the shape which was asked for.
+example: 'Question: Which form is a pentagon? Multiple Choice: Element 1 shows an
+  image of an ellipse, Element 2 shows an image of a pentagon, Element 3 shows an
+  image of a rectangle. Correct Answer: Select element 2'
+topic_id: 12
+template: 03_multiple_choice_question
+text: 
+  text_question:
+    german: 'Welche Form ist '
+    english: 'Which shape is'
+  text_triangle:
+    german: 'ein Dreieck'
+    english: "a triangle"
+  text_rectangle:
+    german: 'ein Rechteck'
+    english: "a rectangle"
+  text_quadrangle:
+    german: 'ein Viereck'
+    english: "a quadrangle"
+  text_pentagon:
+    german: 'ein Fünfeck'
+    english: "a pentagon"
+  text_circle:
+    german: 'einem Kreis'
+    english: "a circle"
+  text_ellipse:
+    german: 'eine Ellipse'
+    english: "an ellipse"
+
+pyscript:
+  imports: |
+    import random
+    from pyscript import document
+    from pyweb import pydom
+    import js
+  globals: |
+    answer = 0
+    selected = 0
+    NUM_CHOICES = 3
+    choices = []
+
+    shapes = {
+      "triangle":{
+        "name":"{{ text.text_triangle }}",
+        "function":js.drawTriangle
+      },
+      "rectangle":{
+      "function":js.drawRectangle,
+      "name":"{{ text.text_rectangle }}",
+      },
+      "quadrangle":{
+        "name":"{{ text.text_quadrangle }}",
+        "function":js.drawQuadrangle,
+      },
+      "pentagon":{
+        "name":"{{ text.text_pentagon }}",
+        "function":js.drawPentagon,
+      },
+      "ellipse":{
+        "function":js.drawEllipse,
+        "name":"{{ text.text_ellipse }}",
+      }
+    }
+
+
+  checker: |
+    def check_answer(event):
+      print("SELECTED: ", selected)
+      print("CORRECT: ", answer) 
+      is_correct = answer==selected
+      return [is_correct, answer, selected]
+
+  generator: |
+    def onclick_gen(idx, choices_elements):
+      def onclick(e):
+        global selected 
+        selected = idx
+        for c in choices_elements:
+          c.className = "choice"
+        choices_elements[idx].className = "choice choice_selected"
+      return onclick
+
+    def generate(parent):
+      global answer, choices
+      answer = 0
+     
+      correct_shape = random.choice(list(shapes.keys()))
+      shape_choices=[correct_shape]
+      for i in range(NUM_CHOICES-1):
+        shape = correct_shape
+        while shape in shape_choices:
+          shape = random.choice(list(shapes.keys()))
+        shape_choices.append(shape)
+
+      random.shuffle(shape_choices)
+      answer = shape_choices.index(correct_shape)
+      choices = [shapes[k]["name"] for k in shape_choices]
+
+      question_element, choices_container, choices_elements = generate_template(parent, NUM_CHOICES)
+      question_element.innerText = "{{ text.text_question }} "+shapes[correct_shape]["name"]+"?"
+      
+      for i,c_element in enumerate(choices_elements):
+        c_element.id = "choice_"+str(i)
+        c_element.onclick = onclick_gen(i,choices_elements)
+        shapes[shape_choices[i]]["function"]("choice_"+str(i), 100)
+        
+  details: | 
+    def get_details():
+      return f"The current question is: 'Which shape is {choices[answer]}?'. The multiple choice list shows images of the following shapes: {choices}. Therefor choice number {answer+1} is the correct answer."
+

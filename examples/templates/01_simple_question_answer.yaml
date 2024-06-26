@@ -1,0 +1,16 @@
+description: Simple question field on the top and and answer field at the bottom
+pyscript:
+  imports: |
+    from pyscript import document
+    from pyweb import pydom
+  generator: |
+      def generate_template(parent):
+        parent = document.getElementById(parent)
+        parent.innerHTML=""
+
+        question_element = document.createElement("div")
+        answer_element = document.createElement("div")
+        parent.append(question_element)
+        parent.append(answer_element)
+
+        return question_element, answer_element

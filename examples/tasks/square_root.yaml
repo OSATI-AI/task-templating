@@ -1,0 +1,57 @@
+title:
+  german: Quadratwurzel
+  english: Square Root
+description: The student sees a mathematical term in which he/she has to calculate
+  the Squareroot of a quadratical number.
+example: 'Exercise: Sqrt(36)=? Correct Solution: 6'
+topic_id: 32
+template: 01_simple_question_answer
+text:
+  text_question:
+    german: 'Bestimmte die Quadratwurzel.'
+    english: 'Find the square root.'
+pyscript:
+  imports: |
+    import random
+    from pyscript import document
+    from pyweb import pydom
+  globals: |
+    answer = 0
+  checker: |
+    def check_answer(event):
+      # Access the math-field element
+      math_field = document.getElementById("equation")
+      user_answer = math_field.getPromptValue('answer')
+    
+      if user_answer.isnumeric():
+          user_answer = int(user_answer)
+          is_correct = True if user_answer == answer else False
+      else:
+          is_correct = False
+
+      return [is_correct, answer, user_answer]
+  generator: |
+    def generate(parent):
+      global answer
+      
+      while True:
+        number = random.randint(2, 10)#
+        if number != answer:
+          answer = number
+          break 
+
+      equation = "\sqrt{"+str(answer**2)+"} = \\placeholder[answer]{}"
+
+      question_element, answer_element = generate_template(parent)
+      question_element.innerText="{{ text.text_question }}"
+      answer_field = document.createElement("math-field")
+      answer_field.id = "equation"
+      answer_field.className = 'w-48'
+      answer_field.setValue(equation)
+      answer_field.mathVirtualKeyboardPolicy = "manual"
+      answer_field.readonly = True
+      answer_element.append(answer_field)
+
+  details: |
+    def get_details():
+      return f"The current exercise is to find the square root of {answer**2}. Therefore the correct answer is {answer}"

@@ -1,0 +1,60 @@
+title:
+  german: Steigung ablesen
+  english: Read gradient
+description: The student sees the graph of a linear function and should read off the
+  gradient of the displayed function.
+example: The graph shows the function y=4x. The correct answer is 4.
+topic_id: 23
+template: 02_figure_question_answer
+text:
+  text_question:
+    german: 'Was ist die Steigung der Funktion?'
+    english: 'What is the gradient of the function?'
+  text_answer:
+    german: 'Steigung'
+    english: 'Gradient'
+pyscript:
+  imports: |
+    import random
+    from pyscript import document
+    from pyweb import pydom
+    import js
+  globals: |
+    answer = 0
+  checker: |
+    def check_answer(event):
+      user_answer = document.getElementById('answerField').value
+      try:
+        user_answer = int(user_answer)
+        is_correct = user_answer == answer
+      except ValueError:
+          is_correct = False
+      return [is_correct, answer, user_answer]
+  generator: |
+    def generate(parent):
+      global answer
+
+      while True:
+        slope = random.randint(-5, 5)
+        if slope != answer and slope != 0:
+          answer = slope
+          break 
+
+      question_element, figure_element, answer_element = generate_template(parent)
+      question_element.innerText = "{{text.text_question}}"
+
+      answer_input = document.createElement("input")
+      answer_input.className = 'input input-bordered w-full max-w-xs'
+      answer_input.id = "answerField"
+      answer_span = document.createElement("span")
+      answer_label = document.createElement("p")
+      answer_label.innerHTML = "<b>{{text.text_answer}}: </b>"
+      answer_span.append(answer_label)
+      answer_span.append(answer_input)
+      answer_element.append(answer_span)
+
+      js.plot_linear_function(answer, 0, "figure_content")
+
+  details: |
+      def get_details():
+        return f"The figure shows the graph of the function y={answer}x. Therfore the gradient and correct answer is {answer}"

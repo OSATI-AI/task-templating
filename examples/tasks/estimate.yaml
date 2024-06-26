@@ -1,0 +1,72 @@
+title:
+  german: Schätze
+  english: Estimate
+description: The student has to estimate the solution of an addition problem with
+  two floating point numbers. The student should first round both numbers to get rid
+  of the decimal digits and then add the rounded numbers together. The exercise is
+  a multiple choice exercise where only one choice is the correct answer.
+example: 'Question: Estimate the result of 42.13 + 19.78. Choices: 58, 62, 67, 85.
+  Correct Choice: 62'
+topic_id: 18
+template: 03_multiple_choice_question
+text: 
+  text_question:
+    german: 'Schätze.'
+    english: 'Estimate.'
+pyscript:
+  imports: |
+    import random
+    from pyscript import document
+    from pyweb import pydom
+    import js
+  globals: |
+    answer = 0
+    num1 = 0
+    num2 = 0
+    selected = 0
+    choices = []
+    NUM_CHOICES = 4
+  checker: |
+    def check_answer(event):
+      print("SELECTED: ", selected)
+      print("CORRECT: ", answer) 
+      is_correct = answer==selected
+      return [is_correct, answer, selected]
+
+  generator: |
+    def onclick_gen(idx, choices_elements):
+      def onclick(e):
+        global selected 
+        selected = idx
+        for c in choices_elements:
+          c.className = "choice"
+        choices_elements[idx].className = "choice choice_selected"
+      return onclick
+
+
+    def generate(parent):
+      global num1, num2, answer, choices
+      answer = 0
+
+      num1 = round(random.uniform(1, 99), 2)
+      num2 = round(random.uniform(1, 99), 2)
+
+      correct = round(num1)+round(num2)
+      choices = [correct]
+      for i in range(NUM_CHOICES-1):
+        delta = 0
+        while delta == 0 or correct+delta in choices:
+          delta = random.randint(-10,10)
+        choices.append(correct+delta)
+
+      choices.sort()
+      answer = choices.index(correct)
+      question_element, choices_container, choices_elements = generate_template(parent, NUM_CHOICES)
+      question_element.innerText = "{{ text.text_question }}  " + f"{num1} + {num2} = "
+      for i,c_element in enumerate(choices_elements):
+        c_element.innerText = choices[i]
+        c_element.onclick = onclick_gen(i,choices_elements)
+
+  details: |
+    def get_details():
+      return f"The exercise is {num1}+{num2}. The possible choices are: {choices}. The correct answer is choice numer {answer+1} ,so {choices[answer]}"

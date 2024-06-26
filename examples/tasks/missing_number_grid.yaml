@@ -1,0 +1,63 @@
+title:
+  english: Missing Number (Grid)
+  german: Fehlende Zahl (Raster)
+description: The student sees a 10x10 grid showing the number from 1 to 100. Where
+  the first row shows the numbers from 1-10, the second row from 11-20 and so on.
+  One of the grid cells is empty. The student have to finde the missing number.
+example: 'The grid is filled with all the number in the correct order except of one
+  number in line 7: ...[75], [76], [ ], [78]... Correct Answer: 77'
+topic_id: 15
+template: 02_figure_question_answer
+text:
+  text_question:
+    english: Which number is missing?
+    german: Welche Zahl fehlt?
+  text_answer:
+    english: Missing Number
+    german: Fehlende Zahl
+pyscript:
+  imports: |
+    import random
+    from pyscript import document
+    from pyweb import pydom
+    import js
+  globals: |
+    answer = 0
+  checker: |
+    def check_answer(event):
+      user_answer = document.getElementById('answerField').value
+      try:
+        user_answer = int(user_answer)
+        is_correct = user_answer == answer
+      except ValueError:
+          is_correct = False
+      return [is_correct, answer, user_answer]
+  generator: |
+    def generate(parent):
+      global answer
+      answer = 0
+
+      while True:
+        number = random.randint(1, 100)
+        if number != answer:
+          answer = number
+          break 
+
+      question_element, figure_element, answer_element = generate_template(parent)
+      answer_input = document.createElement("input")
+      question_element.innerText="{{ text.text_question }}"
+      answer_input.className = 'input input-bordered w-full max-w-xs'
+      answer_input.id = "answerField"
+      answer_span = document.createElement("span")
+      answer_label = document.createElement("p")
+      answer_label.innerHTML = "<b>{{ text.text_answer }}: </b>"
+      answer_span.append(answer_label)
+      answer_span.append(answer_input)
+      answer_element.append(answer_span)
+      
+
+      js.plot_missing_number_grid(answer,"figure_content")
+
+  details: |
+    def get_details():
+      return f"The grid shows all numbers between 1 and 100 except of {answer} which corresponding cell in the grid is empty. Therefore the missing number and correct answer is {answer}"
